@@ -1,7 +1,10 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const mongoose = require("mongoose");
+const { Wechaty, Friendship } = require('wechaty');
 const config = require('./config/config');
+const routes = require('./routes/routeConfig');
+const wechatWay = require('./services/wechatWay');
 const app = new Koa();
 
 const handler = async (ctx, next) => {
@@ -21,6 +24,9 @@ app.on('error', (err) => {
   console.error('server error:', err);
 });
 
+// 路由引入
+routes(app);
+
 // 连接数据库
 mongoose.connect(config.dbPath, { useNewUrlParser: true });
 // 连接成功
@@ -36,6 +42,10 @@ mongoose.connection.on('disconnected', () => {
   console.log('Mongoose connection disconnected');
 });
 
-app.listen(3000, () => {
-  console.log('listening on port: ' + 3000);
+app.listen(3008, () => {
+  console.log('listening on port: ' + 3008);
 });
+
+// 登录微信
+const robot = new Wechaty({ name: 'wechatRobot' });
+wechatWay(robot);
