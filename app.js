@@ -1,7 +1,7 @@
 const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const mongoose = require("mongoose");
-const { Wechaty, Friendship } = require('wechaty');
+const { Wechaty } = require('wechaty');
 const config = require('./config/config');
 const routes = require('./routes/routeConfig');
 const wechatWay = require('./services/wechatWay');
