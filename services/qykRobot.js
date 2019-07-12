@@ -15,6 +15,7 @@ qykRobotReply = async (content) => {
       return '我好像迷失在无边的网络中了，暂时无法回答你的问题';
     }
   } catch (e) {
+    console.error(e.message);
     return '抱歉！我暂时无法回答你的问题哦';
   }
 }

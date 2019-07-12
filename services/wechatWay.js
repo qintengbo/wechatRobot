@@ -2,11 +2,13 @@ const { Friendship } = require('wechaty');
 const Qrterminal = require('qrcode-terminal');
 const request = require('superagent');
 const schedule = require('node-schedule');
+const { FileBox } = require('file-box');
 const constant = require('../config/constant');
 const txRobotReply = require('./txRobot');
 const qykRobotReply = require('./qykRobot');
 const initDay = require('./initDay');
 const settingTask = require('./settingTask');
+const getRubbishType = require('./getRubbishType');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = (robot) => {
@@ -107,9 +109,9 @@ module.exports = (robot) => {
       let keywordArray = text.replace(/\s+/g, ' ').split(' ');
       console.log("分词后效果", keywordArray);
       if (text.indexOf('开启了朋友验证') > -1 || contact.name() === '朋友推荐消息') { return; }
-      if (text.indexOf('你已添加') > -1) {
+      if (text.indexOf('你已添加') > -1 || text.indexOf('帮助') > -1) {
         await delay(2000);
-        contact.say('你好呀！我是微信机器人波波，很高兴认识你<br><br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复');
+        contact.say('你好呀！我是微信机器人波波，很高兴认识你<br><br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 回复“？垃圾名称”可查询垃圾分类<br>4. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复');
         return;
       }
       if (text.indexOf('加群') > -1 || text.indexOf(constant.roomName) > -1) {
@@ -118,7 +120,10 @@ module.exports = (robot) => {
             await delay(2000);
             contact.say('波波正在处理你的入群申请，请不要重复回复...');
             await delay(10000);
-            await meiri.add(contact);
+            const group = FileBox.fromFile('../wechatRobot/static/group.png');
+            await contact.say(group);
+            // contact.say('由于技术问题，暂时无法直接邀请入群，请回复关键词“联系作者”进行加群申请吧');
+            // await meiri.add(contact);
           } catch (e) {
             console.error(e);
           }
@@ -128,14 +133,42 @@ module.exports = (robot) => {
         return;
       }
       if (keywordArray[0] === "提醒") {
-        settingTask.taskReply(contact, keywordArray);
+        settingTask.taskReply(robot, contact, keywordArray);
         return;
       }
       if (text && text.indexOf('你好') > -1) {
         await delay(2000);
         contact.say('你好，波波很高兴成为你的小秘书，来试试我的新功能吧！回复案例：“提醒 我 18:30 下班回家”，创建你的专属提醒，记得关键词之间使用空格分隔开哦');
         return;
-      } 
+      }
+      if (text && text.indexOf('联系作者')> -1) {
+        // 添加本地文件
+        const auth = FileBox.fromFile('../wechatRobot/static/auth.jpg');
+        await delay(2000);
+        await contact.say(auth);
+        return;
+      }
+      if (text.substr(0, 1) === '?' || text.substr(0, 1) === '？') {
+        let rubbishName = text.replace('?', '').replace('？', '');
+        let res = await getRubbishType(rubbishName);
+        await delay(2000);
+        await contact.say(res);
+        return;
+      }
+
+      // 不在功能范围内的关键词采用机器人回复
+      let replyContent = '';
+      switch (constant.defaultBot) {
+        case 0:
+          replyContent = await txRobotReply(text);
+          break;
+        case 1:
+          replyContent = await qykRobotReply(text);
+          break;
+      }
+      console.log('机器人回复：', replyContent);
+      await delay(2000);
+      contact.say(replyContent);
     }
   }
 
