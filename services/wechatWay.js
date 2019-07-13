@@ -80,9 +80,9 @@ module.exports = (robot) => {
         let content = '';
         let replyContent = '';
         if (text.indexOf('@Robot-波波') > -1) {
-          content = text.replace('@Robot-波波 ', '');
+          content = text.replace(/@Robot-波波\s?/, '');
         } else if (text.indexOf('@波波') > -1) {
-          content = text.replace('@波波 ', '');
+          content = text.replace(/@波波\s?/, '');
         }
 
         if (content === '') {
