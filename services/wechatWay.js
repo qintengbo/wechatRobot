@@ -35,6 +35,7 @@ module.exports = (robot) => {
           schedule.scheduleJob(time, async () => {
             let contact = await robot.Contact.find({ name: item.subscriber });
             await contact.say(item.content);
+            // 任务执行完毕之后更新任务状态为过期
             if (!item.isLoop) {
               request.post(`${constant.host}/updateSchedule`)
               .set('Content-Type', 'application/x-www-form-urlencoded')
