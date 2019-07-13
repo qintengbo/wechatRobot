@@ -9,7 +9,7 @@ initDay = async (robot) => {
   let one = await getOne();
   // 获取天气
   let weather = await getWeather();
-  let str = `今日天气<br>${weather.weatherTips}<br>${weather.todayWeather}<br>每日一句:<br>${one}`;
+  let str = `【今日天气】<br>${weather.weatherTips}<br>${weather.todayWeather}<br>【每日一句】<br>${one}`;
   await room.say(str);
 }
 

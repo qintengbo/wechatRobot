@@ -80,9 +80,9 @@ module.exports = (robot) => {
         let content = '';
         let replyContent = '';
         if (text.indexOf('@Robot-波波') > -1) {
-          content = text.replace('@Robot-波波', '');
+          content = text.replace('@Robot-波波 ', '');
         } else if (text.indexOf('@波波') > -1) {
-          content = text.replace('@波波', '');
+          content = text.replace('@波波 ', '');
         }
 
         if (content === '') {
@@ -111,7 +111,7 @@ module.exports = (robot) => {
       if (text.indexOf('开启了朋友验证') > -1 || contact.name() === '朋友推荐消息') { return; }
       if (text.indexOf('你已添加') > -1 || text.indexOf('帮助') > -1) {
         await delay(2000);
-        contact.say('你好呀！我是微信机器人波波，很高兴认识你<br><br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 回复“？垃圾名称”可查询垃圾分类<br>4. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复');
+        contact.say('你好呀！我是微信机器人波波，很高兴认识你<br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 回复“？垃圾名称”可查询垃圾分类<br>4. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复');
         return;
       }
       if (text.indexOf('加群') > -1 || text.indexOf(constant.roomName) > -1) {
@@ -122,7 +122,6 @@ module.exports = (robot) => {
             await delay(10000);
             const group = FileBox.fromFile('../wechatRobot/static/group.png');
             await contact.say(group);
-            // contact.say('由于技术问题，暂时无法直接邀请入群，请回复关键词“联系作者”进行加群申请吧');
             // await meiri.add(contact);
           } catch (e) {
             console.error(e);
@@ -201,7 +200,7 @@ module.exports = (robot) => {
     const topic = await room.topic();
     console.log(`群名： ${topic} | 加入新成员： ${nameList} | 邀请人： ${inviter}`);
     if (topic === constant.roomName) {
-      room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦`);
+      room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦<br>如果无聊，请@我进行聊天吧`);
     }
   }
 
