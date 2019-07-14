@@ -1,6 +1,6 @@
 const Assistant = require('../../models/assistant');
 
-module.exports = (router) => {
+module.exports = router => {
   // 添加定时任务
   router.post('/addSchedule', async (ctx, next) => {
     insert = (data) => {

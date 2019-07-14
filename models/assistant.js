@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// 任务集合字段
 const AssistantSchema = new Schema({
   subscriber: { // 订阅者
     type: String,

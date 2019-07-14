@@ -1,0 +1,30 @@
+const Ordering = require('../../models/ordering');
+
+module.exports = router => {
+	// 新增订餐
+	router.post('/addOrdering', async (ctx, next) => {
+		add = data => {
+			return new Promise(resolve => {
+				Ordering.create(data, (err, doc) => {
+					if (err) {
+						return resolve({
+							code: -1,
+							msg: '新增订餐失败'
+						});
+					}
+					return resolve({
+						code: 0,
+						msg: '新增订餐成功',
+						data: doc
+					});
+				});
+			});
+		}
+
+		const { body } = ctx.request;
+		let res = await add(body);
+		ctx.response.status = 200;
+    ctx.body = res;
+    next();
+	});
+}
