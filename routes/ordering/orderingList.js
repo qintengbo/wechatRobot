@@ -13,25 +13,25 @@ module.exports = router => {
 							msg: '获取订餐列表失败'
 						});
 					}
-					// let result = new Promise((resolveFn, reject) => {
-					// 	Ordering.populate(doc, opts, (error, collection) => {
-					// 		if (error) reject(error);
-					// 		return resolveFn({
-					// 			code: 0,
-					// 			msg: '获取订餐列表成功',
-					// 			data: collection
-					// 		});
-					// 	});
-					// });
-					let result = await Ordering.populate(doc, opts, (error, collection) => {
-						if (error) return error;
-						return {
-							code: 0,
-							msg: '获取订餐列表成功',
-							data: collection
-						};
+					let result = new Promise((resolveFn, reject) => {
+						Ordering.populate(doc, opts, (error, collection) => {
+							if (error) reject(error);
+							return resolveFn({
+								code: 0,
+								msg: '获取订餐列表成功',
+								data: collection
+							});
+						});
 					});
-					return result;
+					// let result = await Ordering.populate(doc, opts, (error, collection) => {
+					// 	if (error) return error;
+					// 	return {
+					// 		code: 0,
+					// 		msg: '获取订餐列表成功',
+					// 		data: collection
+					// 	};
+					// });
+					// return result;
 				});
 			});
 		}
