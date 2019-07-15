@@ -1,6 +1,6 @@
 const Assistant = require('../../models/assistant');
 
-module.exports = (router) => {
+module.exports = router => {
   // 获取定时任务列表
   router.get('/getScheduleList', async (ctx, next) => {
     find = (data) => {
