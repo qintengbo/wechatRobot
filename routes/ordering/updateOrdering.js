@@ -5,7 +5,7 @@ module.exports = router => {
 	router.post('/updateOrdering', async (ctx, next) => {
 		update = () => {
 			return new Promise(resolve => {
-				Ordering.update({ isExpired: false }, { isExpired: true }, { multi: true }, (err, doc) => {
+				Ordering.updateMany({ isExpired: false }, { isExpired: true }, (err, doc) => {
 					if (err) {
 						return resolve({
 							code: -1,

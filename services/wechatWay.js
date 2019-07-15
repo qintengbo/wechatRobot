@@ -32,14 +32,11 @@ module.exports = (robot) => {
     console.log(`${name} => 微信登录成功`);
 
     // 获取每日万年历信息
-    // schedule.scheduleJob(constant.holidayDate, async () => {
-    //   const date = utils.getToday().replace(/-/g, '');
-    //   dateData = await getHoliday(date);
-    //   console.log('当日万年历信息获取成功');
-    // });
-    const date = utils.getToday().replace(/-/g, '');
-    dateData = await getHoliday(date);
-    console.log('当日万年历信息获取成功');
+    schedule.scheduleJob(constant.holidayDate, async () => {
+      const date = utils.getToday().replace(/-/g, '');
+      dateData = await getHoliday(date);
+      console.log('当日万年历信息获取成功');
+    });
 
     // 获取菜单信息
     request.get(`${constant.host}/menuList`).query({ isExpired: false }).then(res => {
@@ -87,12 +84,23 @@ module.exports = (robot) => {
 
     // 初始化订餐服务
     schedule.scheduleJob(constant.orderingStartDate, async () => {
-      if (dateData && dateData.data.type === 0) {
-        console.log('开始订餐启动');
-        initOrdering.orderingStart(robot);
-      } else {
-        console.log('当日不是工作日，订餐服务不启动');
-      }
+      // 更新往日订餐状态
+      request.post(`${constant.host}/updateOrdering`).then(async res => {
+        let text = JSON.parse(res.text);
+        const { code, msg, data } = text;
+        if (code === 0) {
+          if (dateData && dateData.data.type === 0) {
+            console.log('开始订餐启动');
+            initOrdering.orderingStart(robot);
+          } else {
+            console.log('当日不是工作日，订餐服务不启动');
+          }
+        } else {
+          const room = await robot.Room.find({ topic: constant.orderingRoomName });
+          await room.say('@随遇而安 订餐数据库初始化失败，请尽快解决');
+        }
+        console.log(msg);
+      });
     });
     schedule.scheduleJob(constant.orderingTipDate, async () => {
       if (dateData && dateData.data.type === 0) {
@@ -140,7 +148,7 @@ module.exports = (robot) => {
         }
 
         // 把多个空格替换成一个空格，并使用空格作为标记，拆分关键词
-        let keywordArray = content.replace(/(^\s*)|(\s*$)/g, '').replace(/\s+/g, ' ').split(' ');
+        let keywordArray = content.replace(/(^\s*)|(\s*$)/g, '').replace(/#\s*/, '#').replace(/\s+/g, ' ').split(' ');
         console.log("分词后效果", keywordArray);
         // 订餐群消息
         if (topic === constant.orderingRoomName && content.indexOf('#') > -1) {
@@ -166,6 +174,13 @@ module.exports = (robot) => {
           } else {
             await room.say(`@${contact.name()} 抱歉！现在不是订餐时间，还请人工预定哦`);
           }
+          return;
+        }
+        // 查看菜单
+        if (topic === constant.orderingRoomName && content.indexOf('菜单') > -1) {
+          const menuImg = FileBox.fromFile('../wechatRobot/static/menu.jpg');
+          await delay(2000);
+          await room.say(menuImg);
           return;
         }
 
