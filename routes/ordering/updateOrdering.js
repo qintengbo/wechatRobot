@@ -3,9 +3,9 @@ const Ordering = require('../../models/ordering');
 module.exports = router => {
 	// 更新订餐信息
 	router.post('/updateOrdering', async (ctx, next) => {
-		update = data => {
+		update = () => {
 			return new Promise(resolve => {
-				Ordering.update({ isExpired: false }, data, { multi: true }, (err, doc) => {
+				Ordering.update({ isExpired: false }, { isExpired: true }, { multi: true }, (err, doc) => {
 					if (err) {
 						return resolve({
 							code: -1,
@@ -21,8 +21,7 @@ module.exports = router => {
 			});
 		}
 
-		const { params } = ctx;
-		let res = await update(params);
+		let res = await update();
 		ctx.response.status = 200;
     ctx.body = res;
     next();

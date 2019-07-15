@@ -24,6 +24,10 @@ const OrderingSchema = new Schema({
 		type: Boolean,
 		default: false
 	},
+	isDine: { // 是否打包
+		type: Boolean,
+		default: false
+	},
 	createDate: { // 创建时间
 		type: Date,
 		default: Date.now

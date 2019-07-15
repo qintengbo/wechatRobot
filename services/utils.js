@@ -4,7 +4,13 @@ getToday = () => {
   let year = date.getFullYear();
   let month = date.getMonth() + 1;
   let day = date.getDate();
-  return year + '-' + month + '-' + day + ' ';
+  if (month >= 1 && month <= 9) {
+    month = '0' + month;
+  }
+  if (day >= 0 && day <= 9) {
+    day = '0' + day;
+  }
+  return year + '-' + month + '-' + day;
 }
 
 
@@ -77,10 +83,38 @@ isRealDate = str => {
   return true;
 }
 
+// 判断当前时间是否在指定两个时间范围内
+isTimeRang = (startTime, endTime) => {
+  const startArr = startTime.split(':');
+  const endArr = endTime.split(':');
+  if (startArr.length !== 3) {
+    return false;
+  }
+  if (endArr.length !== 3) {
+    return false;
+  }
+  let start = new Date();
+  let end = new Date();
+  let now = new Date();
+
+  start.setHours(startArr[0]);
+  start.setMinutes(startArr[1]);
+  start.setSeconds(startArr[2]);
+  end.setHours(endArr[0]);
+  end.setMinutes(endArr[1]);
+  end.setSeconds(endArr[2]);
+
+  if (now.getTime() - start.getTime() > 0 && now.getTime() - end.getTime() < 0) {
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   getDay,
   getToday,
   convertTime,
   formatDate,
-  isRealDate
+  isRealDate,
+  isTimeRang
 };

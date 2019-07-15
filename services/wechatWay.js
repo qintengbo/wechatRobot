@@ -11,11 +11,13 @@ const settingTask = require('./settingTask');
 const getRubbishType = require('./getRubbishType');
 const initOrdering = require('./initOrdering');
 const getHoliday = require('./getHoliday');
+const ordering = require('./ordering');
 const utils = require('./utils');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = (robot) => {
   let dateData = {}; // 万年历数据
+  let menuList = []; // 菜单数据
 
   // 生成登录二维码
   onScan = qrcode => {
@@ -28,11 +30,28 @@ module.exports = (robot) => {
   onLogin = async user => {
     const name = user.name();
     console.log(`${name} => 微信登录成功`);
-    // 登录后获取当日万年历信息
-    const date = utils.getToday().replace('-', '').replace(/\s?/g, '');
+
+    // 获取每日万年历信息
+    // schedule.scheduleJob(constant.holidayDate, async () => {
+    //   const date = utils.getToday().replace(/-/g, '');
+    //   dateData = await getHoliday(date);
+    //   console.log('当日万年历信息获取成功');
+    // });
+    const date = utils.getToday().replace(/-/g, '');
     dateData = await getHoliday(date);
-    console.log(111, date, dateData)
-    // 登录后获取定时任务列表
+    console.log('当日万年历信息获取成功');
+
+    // 获取菜单信息
+    request.get(`${constant.host}/menuList`).query({ isExpired: false }).then(res => {
+      let text = JSON.parse(res.text);
+      const { code, msg, data } = text;
+      if (code === 0) {
+        menuList = data;
+      }
+      console.log(msg);
+    });
+
+    // 获取定时任务列表
     request.get(`${constant.host}/getScheduleList`).then(res => {
       let text = JSON.parse(res.text);
       const { code, msg, data } = text;
@@ -51,35 +70,41 @@ module.exports = (robot) => {
               .send({ id: item._id })
               .then(result => {
                 let resText = JSON.parse(result.text);
-                const { msg } = resText;
-                console.log(msg);
+                console.log(resText.msg);
               });
             }
           });
         }
-      } else {
-        console.log(msg);
       }
+      console.log(msg);
     });
 
-    // 登录后初始化微信每日说
+    // 初始化微信每日说
     schedule.scheduleJob(constant.sendDate, async () => {
       console.log('微信每日说启动成功');
       initDay(robot);
     });
 
-    // 登录后初始化订餐服务
+    // 初始化订餐服务
     schedule.scheduleJob(constant.orderingStartDate, async () => {
-      console.log('开始订餐启动');
-      initOrdering.orderingStart(robot);
+      if (dateData && dateData.data.type === 0) {
+        console.log('开始订餐启动');
+        initOrdering.orderingStart(robot);
+      } else {
+        console.log('当日不是工作日，订餐服务不启动');
+      }
     });
     schedule.scheduleJob(constant.orderingTipDate, async () => {
-      console.log('订餐即将结束启动');
-      initOrdering.orderingTip(robot);
+      if (dateData && dateData.data.type === 0) {
+        console.log('订餐即将结束启动');
+        initOrdering.orderingTip(robot);
+      }
     });
     schedule.scheduleJob(constant.orderingEndDate, async () => {
-      console.log('订餐结束启动');
-      initOrdering.orderingEnd(robot);
+      if (dateData && dateData.data.type === 0) {
+        console.log('订餐结束启动');
+        initOrdering.orderingEnd(robot);
+      }
     });
   }
 
@@ -94,7 +119,7 @@ module.exports = (robot) => {
     const contact = msg.from();
     const text = msg.text();
     const room = msg.room();
-    // const meiri = await robot.Room.find({ topic: constant.roomName });
+    const meiri = await robot.Room.find({ topic: constant.roomName });
     // 如果机器人自己发的消息则不执行
     if (msg.self()) { return; }
     if (room) {
@@ -102,7 +127,6 @@ module.exports = (robot) => {
       console.log(`群名: ${topic} | 发消息人: ${contact.name()} | 内容: ${text}`);
       if (text.indexOf('@Robot-波波') > -1 || text.indexOf('@波波') > -1) {
         let content = '';
-        let replyContent = '';
         if (text.indexOf('@Robot-波波') > -1) {
           content = text.replace(/@Robot-波波\s?/, '');
         } else if (text.indexOf('@波波') > -1) {
@@ -110,19 +134,43 @@ module.exports = (robot) => {
         }
 
         if (content === '') {
-          replyContent = '你好，波波在的';
+          await delay(2000);
+          await room.say(`@${contact.name()} 你好，波波在的`);
           return;
         }
 
         // 把多个空格替换成一个空格，并使用空格作为标记，拆分关键词
-        let keywordArray = content.replace(/\s+/g, ' ').split(' ');
+        let keywordArray = content.replace(/(^\s*)|(\s*$)/g, '').replace(/\s+/g, ' ').split(' ');
         console.log("分词后效果", keywordArray);
         // 订餐群消息
-        if (topic === constant.orderingRoomName) {
-          if (content.indexOf('订餐'))
+        if (topic === constant.orderingRoomName && content.indexOf('#') > -1) {
+          const startArr = constant.orderingStartDate.split(' ');
+          const endArr = constant.orderingEndDate.split(' ');
+          dateFn = data => {
+            let arr = [];
+            for (let i = 0; i < 3; i++) {
+              if (data[i] === '0') {
+                arr.unshift('00');
+              } else {
+                arr.unshift(data[i]);
+              }
+            }
+            return arr.toString().replace(/,/g, ':');
+          }
+          const stStr = dateFn(startArr);
+          const enStr = dateFn(endArr);
+          const isRang = utils.isTimeRang(stStr, enStr);
+          // 判断是否在订餐时间内
+          if (dateData && dateData.data.type === 0 && isRang) {
+            ordering(room, contact, keywordArray, menuList);
+          } else {
+            await room.say(`@${contact.name()} 抱歉！现在不是订餐时间，还请人工预定哦`);
+          }
+          return;
         }
 
         // 不在功能范围的则机器人回复
+        let replyContent = '';
         switch (constant.defaultBot) {
           case 0:
             replyContent = `@${contact.name()} ` + await txRobotReply(content);
@@ -140,7 +188,7 @@ module.exports = (robot) => {
       // 添加好友消息则不执行
       if (contact.name() === 'Friend recommendation message') { return; }
       // 把多个空格替换成一个空格，并使用空格作为标记，拆分关键词
-      let keywordArray = text.replace(/\s+/g, ' ').split(' ');
+      let keywordArray = text.replace(/(^\s*)|(\s*$)/g, '').replace(/\s+/g, ' ').split(' ');
       console.log("分词后效果", keywordArray);
       if (text.indexOf('开启了朋友验证') > -1 || contact.name() === '朋友推荐消息') { return; }
       if (text.indexOf('你已添加') > -1 || text.indexOf('帮助') > -1) {
@@ -161,7 +209,7 @@ module.exports = (robot) => {
             console.error(e);
           }
         } else {
-          contact.say('哎呀！群组好像不见了，回复关键词“联系作者”报告问题吧');
+          await contact.say('哎呀！群组好像不见了，回复关键词“联系作者”报告问题吧');
         }
         return;
       }
@@ -171,7 +219,7 @@ module.exports = (robot) => {
       }
       if (text && text.indexOf('你好') > -1) {
         await delay(2000);
-        contact.say('你好，波波很高兴成为你的小秘书，来试试我的新功能吧！回复案例：“提醒 我 18:30 下班回家”，创建你的专属提醒，记得关键词之间使用空格分隔开哦');
+        await contact.say('你好，波波很高兴成为你的小秘书，来试试我的新功能吧！回复案例：“提醒 我 18:30 下班回家”，创建你的专属提醒，记得关键词之间使用空格分隔开哦');
         return;
       }
       if (text && text.indexOf('联系作者')> -1) {
@@ -234,7 +282,7 @@ module.exports = (robot) => {
     const topic = await room.topic();
     console.log(`群名： ${topic} | 加入新成员： ${nameList} | 邀请人： ${inviter}`);
     if (topic === constant.roomName) {
-      room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦<br>如果无聊，请@我和我聊天吧`);
+      await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦<br>如果无聊，请@我和我聊天吧`);
     }
   }
 

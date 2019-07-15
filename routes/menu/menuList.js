@@ -3,9 +3,9 @@ const Menu = require('../../models/menu');
 module.exports = router => {
 	// 获取菜单
 	router.get('/menuList', async (ctx, next) => {
-		find = data => {
+		find = () => {
 			return new Promise(resolve => {
-				Menu.find(data, (err, doc) => {
+				Menu.find((err, doc) => {
 					if (err) {
 						return resolve({
 							code: -1,
@@ -21,9 +21,7 @@ module.exports = router => {
 			});
 		}
 
-		const { params } = ctx;
-		console.log(111, params)
-		let res = await find(params);
+		let res = await find();
 		ctx.response.status = 200;
     ctx.body = res;
     next();

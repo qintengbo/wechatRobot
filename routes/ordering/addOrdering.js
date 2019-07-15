@@ -7,6 +7,7 @@ module.exports = router => {
 			return new Promise(resolve => {
 				Ordering.create(data, (err, doc) => {
 					if (err) {
+						console.log(err);
 						return resolve({
 							code: -1,
 							msg: '新增订餐失败'
@@ -22,7 +23,17 @@ module.exports = router => {
 		}
 
 		const { body } = ctx.request;
-		let res = await add(body);
+		let params = { menuId: body.menuId, subscriber: body.subscriber };
+		if (body.num) {
+			params.num = Number(body.num);
+		}
+		if (body.isDine) {
+			params.isDine = true;
+		}
+		if (body.isSpicy) {
+			params.isSpicy = true;
+		}
+		let res = await add(params);
 		ctx.response.status = 200;
     ctx.body = res;
     next();
