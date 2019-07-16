@@ -32,11 +32,9 @@ module.exports = (robot) => {
     console.log(`${name} => 微信登录成功`);
 
     // 获取每日万年历信息
-    schedule.scheduleJob(constant.holidayDate, async () => {
-      const date = utils.getToday().replace(/-/g, '');
-      dateData = await getHoliday(date);
-      console.log('当日万年历信息获取成功');
-    });
+    const date = utils.getToday().replace(/-/g, '');
+    dateData = await getHoliday(date);
+    console.log('当日万年历信息获取成功');
 
     // 获取菜单信息
     request.get(`${constant.host}/menuList`).query({ isExpired: false }).then(res => {
@@ -298,6 +296,9 @@ module.exports = (robot) => {
     console.log(`群名： ${topic} | 加入新成员： ${nameList} | 邀请人： ${inviter}`);
     if (topic === constant.roomName) {
       await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦<br>如果无聊，请@我和我聊天吧`);
+    }
+    if (topic === constant.orderingRoomName) {
+      await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群为雅枫餐厅订餐群，波波的订餐服务时间为工作日早上10:30-11:30，其他时间段请人工预订哦<br>可回复“@波波 菜单”查看菜单详情`)
     }
   }
 
