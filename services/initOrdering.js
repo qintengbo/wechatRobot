@@ -4,11 +4,18 @@ const constant = require('../config/constant');
 // 开始订餐服务
 orderingStart = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
-	const str = '叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>各位同学请“@波波 #菜名”(例如“@波波 #鱼香肉丝饭”)进行订餐<br><br>菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@波波 菜单”查看菜单详情<br><br>如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@波波 #鱼香肉丝饭 2份 打包”<br><br>如需要加辣，请在最后备注“加辣”，例如“@波波 #鱼香肉丝饭 2份 打包 加辣”<br><br>订餐时间为60分钟，11:30波波会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦';
+	const str = '叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>1. 各位同学请“@波波 #菜名”(例如“@波波 #鱼香肉丝饭”)进行订餐<br><br>2. 菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@波波 菜单”查看菜单详情<br><br>3. 如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@波波 #鱼香肉丝饭 2份 打包”<br><br>4. 如需要加辣，请在最后备注“加辣”，例如“@波波 #鱼香肉丝饭 2份 打包 加辣”<br><br>5. 如需取消订餐，可回复关键词“@波波 取消”<br><br>6. 订餐时间为60分钟，11:30波波会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦';
 	await room.say(str);
 }
 
 // 订餐中途提醒
+orderingCenter = async robot => {
+  const room = await robot.Room.find({ topic: constant.orderingRoomName });
+  const str = '温馨提醒：离订餐时间结束还有30分钟，还未订餐的同学可回复“@波波 菜单”查看菜单详情<br>回复“@波波 #菜名”(例如“@波波 #农家小炒肉”)进行订餐<br>如需取消订餐，可回复“@波波 取消”';
+  await room.say(str);
+}
+
+// 订餐即将结束提醒
 orderingTip = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
 	const str = '温馨提醒：订餐时间还剩5分钟，还未订餐的同学速度“@波波 #菜名”(例如“@波波 #红烧茄子饭”)进行订餐哦！';
@@ -18,9 +25,10 @@ orderingTip = async robot => {
 // 结束订餐服务
 orderingEnd = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
-  request.get(`${constant.host}/orderingList`).then(async res => {
+  request.get(`${constant.host}/orderingList`).query({ isExpired: false }).then(async res => {
     let text = JSON.parse(res.text);
     const { code, msg, data } = text;
+    console.log(msg);
     if (code === 0) {
       let tsNameArr = [];
       let dbNameArr = [];
@@ -96,9 +104,9 @@ orderingEnd = async robot => {
             for (let j = 0; j < (6 - i.length); j++) {
               centerText += `　`;
             }
-            name = `${i}: ${centerText}`;
+            name = `${i} ${centerText}`;
           } else {
-            name = `${i}: `;
+            name = `${i} `;
           }
           if (JSON.stringify(spicyObj) === '{}') {
             arr[i] = '';
@@ -140,9 +148,8 @@ orderingEnd = async robot => {
       await room.say(resultText);
       return;
     }
-    console.log(msg);
     await room.say('@随遇而安 订餐结果统计失败，请及时解决');
   });
 }
 
-module.exports = { orderingStart, orderingTip, orderingEnd };
+module.exports = { orderingStart, orderingCenter, orderingTip, orderingEnd };

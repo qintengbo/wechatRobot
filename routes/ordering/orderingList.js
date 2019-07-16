@@ -30,8 +30,8 @@ module.exports = router => {
 			});
 		}
 
-		const params = { isExpired: false };
-		let res = await find(params);
+		const { query } = ctx;
+		let res = await find(query);
 		ctx.response.status = 200;
     ctx.body = res;
     next();

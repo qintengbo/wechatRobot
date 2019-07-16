@@ -11,7 +11,7 @@ const settingTask = require('./settingTask');
 const getRubbishType = require('./getRubbishType');
 const initOrdering = require('./initOrdering');
 const getHoliday = require('./getHoliday');
-const ordering = require('./ordering');
+const orderingService = require('./ordering');
 const utils = require('./utils');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -32,19 +32,14 @@ module.exports = (robot) => {
     console.log(`${name} => 微信登录成功`);
 
     // 获取每日万年历信息
+    // schedule.scheduleJob(constant.holidayDate, async () => {
+    //   const date = utils.getToday().replace(/-/g, '');
+    //   dateData = await getHoliday(date);
+    //   console.log('当日万年历信息获取成功');
+    // });
     const date = utils.getToday().replace(/-/g, '');
     dateData = await getHoliday(date);
     console.log('当日万年历信息获取成功');
-
-    // 获取菜单信息
-    request.get(`${constant.host}/menuList`).query({ isExpired: false }).then(res => {
-      let text = JSON.parse(res.text);
-      const { code, msg, data } = text;
-      if (code === 0) {
-        menuList = data;
-      }
-      console.log(msg);
-    });
 
     // 获取定时任务列表
     request.get(`${constant.host}/getScheduleList`).then(res => {
@@ -82,6 +77,16 @@ module.exports = (robot) => {
 
     // 初始化订餐服务
     schedule.scheduleJob(constant.orderingStartDate, async () => {
+      // 获取菜单信息
+      request.get(`${constant.host}/menuList`).query({ isExpired: false }).then(res => {
+        let text = JSON.parse(res.text);
+        const { code, msg, data } = text;
+        if (code === 0) {
+          menuList = data;
+        }
+        console.log(msg);
+      });
+
       // 更新往日订餐状态
       request.post(`${constant.host}/updateOrdering`).then(async res => {
         let text = JSON.parse(res.text);
@@ -100,9 +105,15 @@ module.exports = (robot) => {
         console.log(msg);
       });
     });
+    schedule.scheduleJob(constant.orderingCenterDate, async () => {
+      if (dateData && dateData.data.type === 0) {
+        console.log('订餐中途提醒启动');
+        initOrdering.orderingCenter(robot);
+      }
+    })
     schedule.scheduleJob(constant.orderingTipDate, async () => {
       if (dateData && dateData.data.type === 0) {
-        console.log('订餐即将结束启动');
+        console.log('订餐即将结束提醒启动');
         initOrdering.orderingTip(robot);
       }
     });
@@ -149,7 +160,7 @@ module.exports = (robot) => {
         let keywordArray = content.replace(/(^\s*)|(\s*$)/g, '').replace(/#\s*/, '#').replace(/\s+/g, ' ').split(' ');
         console.log("分词后效果", keywordArray);
         // 订餐群消息
-        if (topic === constant.orderingRoomName && content.indexOf('#') > -1) {
+        if (topic === constant.orderingRoomName) {
           const startArr = constant.orderingStartDate.split(' ');
           const endArr = constant.orderingEndDate.split(' ');
           dateFn = data => {
@@ -166,20 +177,33 @@ module.exports = (robot) => {
           const stStr = dateFn(startArr);
           const enStr = dateFn(endArr);
           const isRang = utils.isTimeRang(stStr, enStr);
-          // 判断是否在订餐时间内
-          if (dateData && dateData.data.type === 0 && isRang) {
-            ordering(room, contact, keywordArray, menuList);
-          } else {
-            await room.say(`@${contact.name()} 抱歉！现在不是订餐时间，还请人工预定哦`);
+          // 订餐
+          if (content.indexOf('#') > -1) {
+            // 判断是否在订餐时间内
+            if (dateData && dateData.data.type === 0 && isRang) {
+              orderingService.ordering(room, contact, keywordArray, menuList);
+            } else {
+              await room.say(`@${contact.name()} 抱歉！现在不是订餐时间，还请人工预定哦`);
+            }
+            return;
           }
-          return;
-        }
-        // 查看菜单
-        if (topic === constant.orderingRoomName && content.indexOf('菜单') > -1) {
-          const menuImg = FileBox.fromFile('../wechatRobot/static/menu.jpg');
-          await delay(2000);
-          await room.say(menuImg);
-          return;
+          // 取消订餐
+          if (content.indexOf('取消') > -1) {
+            // 判断是否在订餐时间内
+            if (dateData && dateData.data.type === 0 && isRang) {
+              orderingService.cancelOrdering(room, contact, keywordArray);
+            } else {
+              await room.say(`@${contact.name()} 抱歉！现在不在订餐时间范围内，无法取消订餐哦`);
+            }
+            return;
+          }
+          // 查看菜单
+          if (content.indexOf('菜单') > -1) {
+            const menuImg = FileBox.fromFile('../wechatRobot/static/menu.jpg');
+            await delay(2000);
+            await room.say(menuImg);
+            return;
+          }
         }
 
         // 不在功能范围的则机器人回复

@@ -7,7 +7,6 @@ module.exports = router => {
 			return new Promise(resolve => {
 				Ordering.create(data, (err, doc) => {
 					if (err) {
-						console.log(err);
 						return resolve({
 							code: -1,
 							msg: '新增订餐失败'
