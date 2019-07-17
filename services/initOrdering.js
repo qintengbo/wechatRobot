@@ -1,5 +1,6 @@
 const request = require('superagent');
 const constant = require('../config/constant');
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // 开始订餐服务
 orderingStart = async robot => {
@@ -146,6 +147,10 @@ orderingEnd = async robot => {
       }
       const resultText = `叮咚！订餐时间结束，本次订餐结果统计如下:<br><br>【堂食】<br>${tsStr}<br>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _<br><br>【打包】<br>${dbStr}<br>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _<br><br>总份数: 　${tsNum + dbNum} 份<br>总金额: 　${tsAmount + dbAmount} 元<br><br>${lastText}`;
       await room.say(resultText);
+      if ((tsNum + dbNum) !== 0) {
+        await delay(2000);
+        await room.say('@绿色荷塘 统计完毕，请接单哦');
+      }
       return;
     }
     await room.say('@随遇而安 订餐结果统计失败，请及时解决');

@@ -121,7 +121,7 @@ ordering = async(room, contact, keywordArr, menuList) => {
 
 // 取消订餐
 cancelOrdering = async (room, contact, keywordArr) => {
-  const tip1 = '取消失败<br>未能查询到您名下的订餐信息';
+  const tip1 = '取消失败<br>您名下没有任何订餐信息';
   const tip2 = '取消成功<br>欢迎下次使用波波的订餐服务';
   const tip3 = '取消失败<br>格式不正确，请重新回复“@波波 取消 序号”';
   const tip4 = '取消失败<br>网络开小差啦，麻烦重新取消订餐哦';
@@ -136,9 +136,11 @@ cancelOrdering = async (room, contact, keywordArr) => {
       const { code, msg } = text;
       console.log(msg);
       if (code === 0) {
+        await delay(2000);
         await room.say(`@${contact.name()} ${tip2}`);
         return;
       }
+      await delay(2000);
       await room.say(`@${contact.name()} ${tip4}`);
     });
   }
@@ -150,6 +152,7 @@ cancelOrdering = async (room, contact, keywordArr) => {
       console.log(msg);
       if (code === 0) {
         if (data.length === 0) {
+          await delay(2000);
           await room.say(`@${contact.name()} ${tip1}`);
         }
         if (data.length === 1) {
@@ -157,7 +160,7 @@ cancelOrdering = async (room, contact, keywordArr) => {
         }
         if (data.length > 1) {
           let listText = '';
-          for (let i = 0; i < data.length; i++) {
+          for (let i = 0; i < data.length; i ++) {
             let name = '';
             if (data[i].menuId.name.length < 6) {
               let centerText = '';
@@ -171,10 +174,12 @@ cancelOrdering = async (room, contact, keywordArr) => {
             listText += `${i + 1}. ${name}　${data[i].num}份 ${data[i].isSpicy ? '加辣' : ''} ${data[i].isDine ? '打包' : ''}<br>`;
           }
           const str = `查询到您名下有如下订餐信息:<br><br>${listText}<br>请回复“@波波 取消 序号”取消对应的订餐`;
+          await delay(2000);
           await room.say(`@${contact.name()} ${str}`);
         }
         return;
       }
+      await delay(2000);
       await room.say(`@${contact.name()} ${tip4}`);
     });
   }
@@ -183,12 +188,15 @@ cancelOrdering = async (room, contact, keywordArr) => {
       request.get(`${constant.host}/orderingList`).query({ subscriber: contact.name(), isExpired: false }).then(async res => {
         let text = JSON.parse(res.text);
         const { code, msg, data } = text;
+        console.log(msg);
         if (code === 0) {
           if (data.length === 0) {
+            await delay(2000);
             await room.say(`@${contact.name()} ${tip5}`);
           }
           if (data.length > 0) {
             if (keywordArr[1] > data.lenght) {
+              await delay(2000);
               await room.say(`@${contact.name()} ${tip5}`);
             } else {
               cancel(data[keywordArr[1] - 1]._id);
@@ -196,12 +204,89 @@ cancelOrdering = async (room, contact, keywordArr) => {
           }
           return;
         }
+        await delay(2000);
         await room.say(`@${contact.name()} ${tip4}`);
       });
     } else {
+      await delay(2000);
       await room.say(`@${contact.name()} ${tip3}`);
     }
   }
-} 
+}
 
-module.exports = { ordering, cancelOrdering };
+// 查询订餐
+inquiryOrdering = async (room, contact) => {
+  const tip1 = '您名下没有任何订餐信息';
+  const tip2 = '网络开小差啦，麻烦重新查询哦';
+  // 查询名下订餐
+  request.get(`${constant.host}/orderingList`).query({ subscriber: contact.name(), isExpired: false }).then(async res => {
+    let text = JSON.parse(res.text);
+    const { code, msg, data } = text;
+    console.log(msg);
+    if (code === 0) {
+      if (data.length === 0) {
+        await delay(2000);
+        await room.say(`@${contact.name()} ${tip1}`);
+      } else {
+        let listText = '';
+        for (let i = 0; i < data.length; i ++) {
+          let name = '';
+          if (data[i].menuId.name.length < 6) {
+            let centerText = '';
+            for (let j = 0; j < (6 - data[i].menuId.name.length); j++) {
+              centerText += `　`;
+            }
+            name = `${data[i].menuId.name} ${centerText}`;
+          } else {
+            name = `${data[i].menuId.name} `;
+          }
+          listText += `▷ ${name}　${data[i].num}份 ${data[i].isSpicy ? '加辣' : ''} ${data[i].isDine ? '打包' : ''}<br>`;
+        }
+        const str = `查询到您名下有如下订餐信息:<br><br>${listText}`;
+        await delay(2000);
+        await room.say(`@${contact.name()} ${str}`);
+      }
+      return;
+    }
+    await delay(2000);
+    await room.say(`@${contact.name()} ${tip2}`);
+  });
+}
+
+// 查询订餐详情
+orderingDetail = async (room, contact) => {
+  const tip1 = '今日无人订餐，暂无订餐详情哦';
+  const tip2 = '网络开小差啦，麻烦重新查询订餐详情哦';
+  // 查询所有订餐信息
+  request.get(`${constant.host}/orderingList`).query({ isExpired: false }).then(async res => {
+    let text = JSON.parse(res.text);
+    const { code, msg, data } = text;
+    console.log(msg);
+    if (code === 0) {
+      if (data.length === 0) {
+        await delay(2000);
+        await room.say(`@${contact.name()} ${tip1}`);
+      } else {
+        let nameArr = [];
+        let resArr = [];
+        for (let i = 0; i < data.length; i ++) {
+          // 判断是否是同一个人名下的订餐
+          const num = nameArr.indexOf(data[i].subscriber);
+          if (num > -1) {
+            resArr[num].push(data[i]);
+          } else {
+            nameArr.push(data[i].subscriber);
+            resArr.push([]);
+            resArr[nameArr.length - 1].push(data[i]);
+          }
+        }
+        console.log(nameArr, resArr);
+      }
+      return;
+    }
+    await delay(2000);
+    await room.say(`@${contact.name()} ${tip2}`);
+  });
+}
+
+module.exports = { ordering, cancelOrdering, inquiryOrdering };

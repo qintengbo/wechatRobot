@@ -162,7 +162,7 @@ module.exports = (robot) => {
           const endArr = constant.orderingEndDate.split(' ');
           dateFn = data => {
             let arr = [];
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 3; i ++) {
               if (data[i] === '0') {
                 arr.unshift('00');
               } else {
@@ -180,6 +180,7 @@ module.exports = (robot) => {
             if (dateData && dateData.data.type === 0 && isRang) {
               orderingService.ordering(room, contact, keywordArray, menuList);
             } else {
+              await delay(2000);
               await room.say(`@${contact.name()} 抱歉！现在不是订餐时间，还请人工预定哦`);
             }
             return;
@@ -190,7 +191,19 @@ module.exports = (robot) => {
             if (dateData && dateData.data.type === 0 && isRang) {
               orderingService.cancelOrdering(room, contact, keywordArray);
             } else {
+              await delay(2000);
               await room.say(`@${contact.name()} 抱歉！现在不在订餐时间范围内，无法取消订餐哦`);
+            }
+            return;
+          }
+          // 查询订餐
+          if (content.indexOf('查询') > -1) {
+            // 判断是否在订餐时间内
+            if (dateData && dateData.data.type === 0 && isRang) {
+              orderingService.inquiryOrdering(room, contact);
+            } else {
+              await delay(2000);
+              await room.say(`@${contact.name()} 抱歉！现在不在订餐时间范围内，无法查询订餐信息哦`);
             }
             return;
           }
@@ -199,6 +212,11 @@ module.exports = (robot) => {
             const menuImg = FileBox.fromFile('../wechatRobot/static/menu.jpg');
             await delay(2000);
             await room.say(menuImg);
+            return;
+          }
+          // 查询订餐详情
+          if (content.indexOf('详情') > -1) {
+
             return;
           }
         }
@@ -243,6 +261,7 @@ module.exports = (robot) => {
             console.error(e);
           }
         } else {
+          await delay(2000);
           await contact.say('哎呀！群组好像不见了，回复关键词“联系作者”报告问题吧');
         }
         return;
@@ -346,7 +365,7 @@ module.exports = (robot) => {
   robot.on('message', onMessage);
   robot.on('friendship', onFriendShip);
   robot.on('room-join', onRoomJoin);
-  robot.on('room-invite', onRoomInvite);
+  // robot.on('room-invite', onRoomInvite); // 网页版微信不支持自动入群
   robot.start().then(() => { 
     console.log('开始登陆微信');
   })
