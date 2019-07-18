@@ -240,7 +240,7 @@ inquiryOrdering = async (room, contact) => {
           } else {
             name = `${data[i].menuId.name} `;
           }
-          listText += `▷ ${name}　${data[i].num}份 ${data[i].isSpicy ? '加辣' : ''} ${data[i].isDine ? '打包' : ''}<br>`;
+          listText += `• ${name}　${data[i].num}份 ${data[i].isSpicy ? '加辣' : ''} ${data[i].isDine ? '打包' : ''}<br>`;
         }
         const str = `查询到您名下有如下订餐信息:<br><br>${listText}`;
         await delay(2000);
@@ -280,7 +280,29 @@ orderingDetail = async (room, contact) => {
             resArr[nameArr.length - 1].push(data[i]);
           }
         }
-        console.log(nameArr, resArr);
+        let menuText = ''
+        for (let i = 0; i < resArr.length; i ++) {
+          let listText = '';
+          let amount = 0;
+          for (let j = 0; j < resArr[i].length; j ++) {
+            let name = '';
+            if (resArr[i][j].menuId.name.length < 6) {
+              let centerText = '';
+              for (let n = 0; n < (6 - resArr[i][j].menuId.name.length); n ++) {
+                centerText += `　`;
+              }
+              name = `${resArr[i][j].menuId.name} ${centerText}`;
+            } else {
+              name = `${resArr[i][j].menuId.name} `;
+            }
+            amount += resArr[i][j].menuId.price * resArr[i][j].num;
+            listText += `${name} ${resArr[i][j].num}份 ${resArr[i][j].isSpicy ? '加辣' : ''} ${resArr[i][j].isDine ? '打包' : ''}<br>`;
+          }
+          menuText += `【${nameArr[i]}】(￥${amount})<br>${listText}_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _<br><br>`;
+        }
+        const resText = `订餐详情如下:<br><br>${menuText}注：早上10:30之前的查询结果为昨日的订餐详情`;
+        await delay(2000);
+        await room.say(resText);
       }
       return;
     }
@@ -289,4 +311,4 @@ orderingDetail = async (room, contact) => {
   });
 }
 
-module.exports = { ordering, cancelOrdering, inquiryOrdering };
+module.exports = { ordering, cancelOrdering, inquiryOrdering, orderingDetail };

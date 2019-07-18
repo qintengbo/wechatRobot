@@ -216,7 +216,12 @@ module.exports = (robot) => {
           }
           // 查询订餐详情
           if (content.indexOf('详情') > -1) {
-
+            if (dateData && dateData.data.type === 0 && isRang) {
+              await delay(2000);
+              await room.say(`@${contact.name()} 抱歉！订餐还未结束，无法查询订餐详情`);
+            } else {
+              orderingService.orderingDetail(room, contact);
+            }
             return;
           }
         }
@@ -282,6 +287,7 @@ module.exports = (robot) => {
         await contact.say(auth);
         return;
       }
+      // 垃圾分类
       if (text.substr(0, 1) === '?' || text.substr(0, 1) === '？') {
         let rubbishName = text.replace('?', '').replace('？', '');
         let res = await getRubbishType(rubbishName);

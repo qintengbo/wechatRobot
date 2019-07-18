@@ -5,7 +5,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 // 开始订餐服务
 orderingStart = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
-	const str = '叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>1. 各位同学请“@波波 #菜名”(例如“@波波 #鱼香肉丝饭”)进行订餐<br><br>2. 菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@波波 菜单”查看菜单详情<br><br>3. 如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@波波 #鱼香肉丝饭 2份 打包”<br><br>4. 如需要加辣，请在最后备注“加辣”，例如“@波波 #鱼香肉丝饭 2份 打包 加辣”<br><br>5. 如需取消订餐，可回复关键词“@波波 取消”<br><br>6. 订餐时间为60分钟，11:30波波会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦';
+	const str = '叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>1. 各位同学请“@波波 #菜名”(例如“@波波 #鱼香肉丝饭”)进行订餐<br><br>2. 菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@波波 菜单”查看菜单详情<br><br>3. 如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@波波 #鱼香肉丝饭 2份 打包”<br><br>4. 如需要加辣，请在最后备注“加辣”，例如“@波波 #鱼香肉丝饭 2份 打包 加辣”<br><br>5. 如需取消订餐，可回复关键词“@波波 取消”，如需查询订餐，请回复“@波波 查询”<br><br>6. 订餐时间为60分钟，11:30波波会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦';
 	await room.say(str);
 }
 
@@ -100,9 +100,9 @@ orderingEnd = async robot => {
         let name = '';
         for (let i in obj) {
           let arr = {};
-          if (i.length < 6) {
+          if (i.length < 7) {
             let centerText = '';
-            for (let j = 0; j < (6 - i.length); j++) {
+            for (let j = 0; j < (7 - i.length); j ++) {
               centerText += `　`;
             }
             name = `${i} ${centerText}`;
