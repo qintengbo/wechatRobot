@@ -218,7 +218,7 @@ module.exports = (robot) => {
           if (content.indexOf('详情') > -1) {
             if (dateData && dateData.data.type === 0 && isRang) {
               await delay(2000);
-              await room.say(`@${contact.name()} 抱歉！订餐还未结束，无法查询订餐详情`);
+              await room.say(`@${contact.name()} 抱歉！订餐时间还未结束，无法查询订餐详情`);
             } else {
               orderingService.orderingDetail(room, contact);
             }
