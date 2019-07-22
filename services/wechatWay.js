@@ -69,7 +69,7 @@ module.exports = (robot) => {
     // 初始化微信每日说
     schedule.scheduleJob(constant.sendDate, async () => {
       console.log('微信每日说启动成功');
-      initDay(robot);
+      initDay(robot, dateData);
     });
 
     // 初始化订餐服务
