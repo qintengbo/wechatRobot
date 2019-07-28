@@ -5,7 +5,7 @@ module.exports = {
   txRubbishApi: 'http://api.tianapi.com/txapi/lajifenlei/', // 天行垃圾分类接口
   qykBotApi: 'http://api.qingyunke.com/api.php', // 青云客机器人api
   defaultBot: 1, // 0-天行机器人 1-青云客机器人
-  getOneUrl: 'http://wufazhuce.com/', // 每日一句url
+  getOneUrl: 'http://guozhivip.com/nav/api/api.php', // 每日一句url
   sendDate: '0 0 8 * * *', // 微信每日说定时发送时间，每天8点0分0秒发送，规则见 /schedule/index.js
   orderingStartDate: '0 30 10 * * 1-5', // 工作日订餐开始时间
   orderingCenterDate: '0 0 11 * * 1-5', // 订餐中途提醒时间

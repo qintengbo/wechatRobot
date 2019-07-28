@@ -44,13 +44,13 @@ contentDistinguish = (contact, keywordArray) => {
   // 设置定时任务的用户
   scheduleObj.announcer = contact.name();
   // 定时任务接收者
-  scheduleObj.subscriber = (keywordArray[1] === "我") ? contact.name() : keywordArray[1];
+  scheduleObj.subscriber = keywordArray[1] === "我" ? contact.name() : keywordArray[1];
   // 判断是否属于循环任务
   if (keywordArray[2] === "每天") {
     console.log('已设置每日定时任务');
     scheduleObj.isLoop = true;
     let time = keywordArray[3].replace('：', ':');
-    scheduleObj.time = convertTime(time);
+    scheduleObj.time = utils.convertTime(time);
     const str1 = `亲爱的${scheduleObj.subscriber}，现在时间是${scheduleObj.time}，温馨提醒：${keywordArray[4].replace('我', '你')}`;
     const str2 = `亲爱的${scheduleObj.subscriber}，${scheduleObj.announcer}委托我提醒你，${keywordArray[4].replace('我', '你')}`;
     scheduleObj.content = (scheduleObj.announcer === scheduleObj.subscriber) ? scheduleObj.content = str1 : str2;
@@ -58,13 +58,14 @@ contentDistinguish = (contact, keywordArray) => {
     console.log('已设置指定日期时间任务');
     scheduleObj.isLoop = false;
     scheduleObj.time = keywordArray[2] + ' ' + keywordArray[3].replace('：', ':');
+    console.log(scheduleObj.time);
     const str1 = `亲爱的${scheduleObj.subscriber}，现在时间是${scheduleObj.time}，温馨提醒：${keywordArray[4].replace('我', '你')}`;
     const str2 = `亲爱的${scheduleObj.subscriber}，${scheduleObj.announcer}委托我提醒你，${keywordArray[4].replace('我', '你')}`;
     scheduleObj.content = (scheduleObj.announcer === scheduleObj.subscriber) ? scheduleObj.content = str1 : str2;
   } else {
     console.log('已设置当天任务');
     scheduleObj.isLoop = false;
-    scheduleObj.time = today + keywordArray[2].replace('：', ':');
+    scheduleObj.time = `${today} ` + keywordArray[2].replace('：', ':');
     const str1 = `亲爱的${scheduleObj.subscriber}，现在时间是${scheduleObj.time}，温馨提醒：${keywordArray[3].replace('我', '你')}`;
     const str2 = `亲爱的${scheduleObj.subscriber}，${scheduleObj.announcer}委托我提醒你，${keywordArray[3].replace('我', '你')}`;
     scheduleObj.content = (scheduleObj.announcer === scheduleObj.subscriber) ? scheduleObj.content = str1 : str2;
