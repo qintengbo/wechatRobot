@@ -1,5 +1,6 @@
-// 常量表
+// 配置常量
 module.exports = {
+  robotName: '波波', // 机器人微信名
   host: 'http://127.0.0.1:3008/api',
   txBotApi: 'http://api.tianapi.com/txapi/robot/', // 天行机器人api
   txRubbishApi: 'http://api.tianapi.com/txapi/lajifenlei/', // 天行垃圾分类接口

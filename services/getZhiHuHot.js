@@ -12,7 +12,7 @@ getZhiHuHot = async () => {
 		let $ = cheerio.load(res.text);
 		let itemArr = $('.HotItem');
 		let hotList = [];
-		for (let i = 0; i < 10; i++) {
+		for (let i = 0; i < 5; i++) {
 			const title = $(itemArr[i]).find('.HotItem-title').text();
 			const url = $(itemArr[i]).find('a').attr('href');
 			const hotNum = $(itemArr[i]).find('.HotItem-metrics').text().replace(/\s?分享/, '');

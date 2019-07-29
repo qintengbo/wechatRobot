@@ -5,21 +5,21 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 // 开始订餐服务
 orderingStart = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
-	const str = '叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>1. 各位同学请“@波波 #菜名”(例如“@波波 #鱼香肉丝饭”)进行订餐<br><br>2. 菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@波波 菜单”查看菜单详情<br><br>3. 如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@波波 #鱼香肉丝饭 2份 打包”<br><br>4. 如需要加辣，请在最后备注“加辣”，例如“@波波 #鱼香肉丝饭 2份 打包 加辣”<br><br>5. 如需取消订餐，可回复关键词“@波波 取消”，如需查询订餐，请回复“@波波 查询”<br><br>6. 订餐时间为60分钟，11:30波波会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦';
+	const str = `叮咚！订餐时间到啦！不吃饱怎么有力气工作呢<br><br>1. 各位同学请“@${constant.robotName} #菜名”(例如“@${constant.robotName} #鱼香肉丝饭”)进行订餐<br><br>2. 菜名只限菜单范围，超出范围无法预订，订餐默认为堂食，份数默认为1份，可回复“@${constant.robotName} 菜单”查看菜单详情<br><br>3. 如果订餐份数大于1份或需要打包的请在菜名后加“几份”或“打包”二字，例如“@${constant.robotName} #鱼香肉丝饭 2份 打包”<br><br>4. 如需要加辣，请在最后备注“加辣”，例如“@${constant.robotName} #鱼香肉丝饭 2份 打包 加辣”<br><br>5. 如需取消订餐，可回复关键词“@${constant.robotName} 取消”，如需查询订餐，请回复“@${constant.robotName} 查询”<br><br>6. 订餐时间为60分钟，11:30${constant.robotName}会将订餐结果统计后发到群里，超过订餐时间的请人工预订哦`;
 	await room.say(str);
 }
 
 // 订餐中途提醒
 orderingCenter = async robot => {
   const room = await robot.Room.find({ topic: constant.orderingRoomName });
-  const str = '温馨提醒：离订餐时间结束还有30分钟，还未订餐的同学可回复“@波波 菜单”查看菜单详情<br>回复“@波波 #菜名”(例如“@波波 #农家小炒肉”)进行订餐<br>如需取消订餐，可回复“@波波 取消”';
+  const str = `温馨提醒：离订餐时间结束还有30分钟，还未订餐的同学可回复“@${constant.robotName} 菜单”查看菜单详情<br>回复“@${constant.robotName} #菜名”(例如“@${constant.robotName} #农家小炒肉”)进行订餐<br>如需取消订餐，可回复“@${constant.robotName} 取消”`;
   await room.say(str);
 }
 
 // 订餐即将结束提醒
 orderingTip = async robot => {
 	const room = await robot.Room.find({ topic: constant.orderingRoomName });
-	const str = '温馨提醒：订餐时间还剩5分钟，还未订餐的同学速度“@波波 #菜名”(例如“@波波 #红烧茄子饭”)进行订餐哦！';
+	const str = `温馨提醒：订餐时间还剩5分钟，还未订餐的同学速度“@${constant.robotName} #菜名”(例如“@${constant.robotName} #红烧茄子饭”)进行订餐哦！`;
 	await room.say(str);
 }
 
@@ -141,9 +141,9 @@ orderingEnd = async robot => {
       }
       let lastText = '';
       if ((tsNum + dbNum) === 0) {
-        lastText = '竟然没有人愿意使用波波的订餐服务，波波很不开心！';
+        lastText = `竟然没有人愿意使用${constant.robotName}的订餐服务，${constant.robotName}很不开心！`;
       } else {
-        lastText = '感谢大家使用波波的订餐服务，祝大家用餐愉快！';
+        lastText = `感谢大家使用${constant.robotName}的订餐服务，祝大家用餐愉快！`;
       }
       const resultText = `叮咚！订餐时间结束，本次订餐结果统计如下:<br><br>【堂食】<br>${tsStr}<br>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _<br><br>【打包】<br>${dbStr}<br>_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _<br><br>总份数: 　${tsNum + dbNum} 份<br>总金额: 　${tsAmount + dbAmount} 元<br><br>${lastText}`;
       await room.say(resultText);

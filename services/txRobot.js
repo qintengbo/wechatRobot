@@ -12,7 +12,7 @@ txRobotReply = async (content) => {
       let result = '';
       switch (doc.datatype) {
         case 'text':
-          result = doc.newslist[0].reply.replace('小小', '波波').replace('小主', '你');
+          result = doc.newslist[0].reply.replace('小小', constant.robotName).replace('小主', '你');
           break;
         case 'view':
           result = `虽然我不太懂你说的是什么，但是感觉很高级的样子，因此我也查找了类似的文章去学习，你觉得有用吗<br>《${content.newslist[0].title}》${content.newslist[0].url}`

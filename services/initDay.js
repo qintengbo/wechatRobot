@@ -25,9 +25,9 @@ initDay = async (robot, dateData) => {
   }
   let hotContent = '';
   for (let i = 0; i < hot.length; i++) {
-  	hotContent += `${i + 1}. ${hot[i].title}<br>(${hot[i].hotNum})<br>详情链接：${hot[i].url}<br>`;
+  	hotContent += `<br>${i + 1}. ${hot[i].title}<br>(${hot[i].hotNum})<br>详情链接：${hot[i].url}<br>`;
   }
-  let str2 = `【知乎热榜Top10】<br>${hotContent}`;
+  let str2 = `【知乎热榜Top5】${hotContent}`;
   await delay(2000);
   await room.say(str2);
 }

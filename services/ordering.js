@@ -6,7 +6,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 ordering = async(room, contact, keywordArr, menuList) => {
   const tip1 = '订餐失败<br>菜名超出菜单范围或订餐格式不正确，请重新订餐哦';
   const tip2 = '订餐失败<br>订餐格式不正确，请重新订餐哦';
-  const tip3 = '订餐成功<br>波波已经将你的订餐需求牢记在小本本上了';
+  const tip3 = `订餐成功<br>${constant.robotName}已经将你的订餐需求牢记在小本本上了`;
   const tip4 = '订餐失败<br>网络开小差啦，麻烦重新订餐哦';
   let params = {};
   let menuId = ''; // 菜名id
@@ -122,10 +122,10 @@ ordering = async(room, contact, keywordArr, menuList) => {
 // 取消订餐
 cancelOrdering = async (room, contact, keywordArr) => {
   const tip1 = '取消失败<br>您名下没有任何订餐信息';
-  const tip2 = '取消成功<br>欢迎下次使用波波的订餐服务';
-  const tip3 = '取消失败<br>格式不正确，请重新回复“@波波 取消 序号”';
+  const tip2 = `取消成功<br>欢迎下次使用${constant.robotName}的订餐服务`;
+  const tip3 = `取消失败<br>格式不正确，请重新回复“@${constant.robotName} 取消 序号”`;
   const tip4 = '取消失败<br>网络开小差啦，麻烦重新取消订餐哦';
-  const tip5 = '取消失败<br>未能查询到该序号对应的订餐信息，请核对后重新回复“@波波 取消 序号”';
+  const tip5 = `取消失败<br>未能查询到该序号对应的订餐信息，请核对后重新回复“@${constant.robotName} 取消 序号”`;
   // 删除订单
   cancel = id => {
     request.post(`${constant.host}/deleteOrdering`)
@@ -173,7 +173,7 @@ cancelOrdering = async (room, contact, keywordArr) => {
             }
             listText += `${i + 1}. ${name}　${data[i].num}份 ${data[i].isSpicy ? '加辣' : ''} ${data[i].isDine ? '打包' : ''}<br>`;
           }
-          const str = `查询到您名下有如下订餐信息:<br><br>${listText}<br>请回复“@波波 取消 序号”取消对应的订餐`;
+          const str = `查询到您名下有如下订餐信息:<br><br>${listText}<br>请回复“@${constant.robotName} 取消 序号”取消对应的订餐`;
           await delay(2000);
           await room.say(`@${contact.name()} ${str}`);
         }

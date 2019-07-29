@@ -139,17 +139,19 @@ module.exports = (robot) => {
     if (room) {
       const topic = await room.topic();
       console.log(`群名: ${topic} | 发消息人: ${contact.name()} | 内容: ${text}`);
-      if (text.indexOf('@Robot-波波') > -1 || text.indexOf('@波波') > -1) {
+      if (text.indexOf(`@Robot-${constant.robotName}`) > -1 || text.indexOf(`@${constant.robotName}`) > -1) {
         let content = '';
-        if (text.indexOf('@Robot-波波') > -1) {
-          content = text.replace(/@Robot-波波\s?/, '');
-        } else if (text.indexOf('@波波') > -1) {
-          content = text.replace(/@波波\s?/, '');
+        if (text.indexOf(`@Robot-${constant.robotName}`) > -1) {
+          const reg = new RegExp('@Robot-' + constant.robotName + '\s?');
+          content = text.replace(reg, '');
+        } else if (text.indexOf(`@${constant.robotName}`) > -1) {
+          const reg = new RegExp('@' + constant.robotName + '\s?');
+          content = text.replace(reg, '');
         }
 
         if (content === '') {
           await delay(2000);
-          await room.say(`@${contact.name()} 你好，波波在的`);
+          await room.say(`@${contact.name()} 你好，${constant.robotName}在的`);
           return;
         }
 
@@ -250,14 +252,14 @@ module.exports = (robot) => {
       if (text.indexOf('开启了朋友验证') > -1 || contact.name() === '朋友推荐消息') { return; }
       if (text.indexOf('你已添加') > -1 || text.indexOf('帮助') > -1) {
         await delay(2000);
-        contact.say('你好呀！我是微信机器人波波，很高兴认识你<br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 回复“？垃圾名称”可查询垃圾分类<br>4. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复');
+        contact.say(`你好呀！我是微信机器人${constant.robotName}，很高兴认识你<br>1. 回复关键词“加群”或“微信每日说”<br>2. 或回复“提醒 我 18:30 下班回家”，创建你的专属提醒<br>3. 回复“？垃圾名称”可查询垃圾分类<br>4. 如使用过程中遇到问题，可回复关键词“联系作者”添加作者微信，此账号为机器人小号，不做任何回复`);
         return;
       }
       if (text.indexOf('加群') > -1 || text.indexOf(constant.roomName) > -1) {
         if (meiri) {
           try {
             await delay(2000);
-            contact.say('波波正在处理你的入群申请，请不要重复回复...');
+            contact.say(`${constant.robotName}正在处理你的入群申请，请不要重复回复...`);
             await delay(10000);
             const group = FileBox.fromFile('../wechatRobot/static/group.png');
             await contact.say(group);
@@ -277,7 +279,7 @@ module.exports = (robot) => {
       }
       if (text && text.indexOf('你好') > -1) {
         await delay(2000);
-        await contact.say('你好，波波很高兴成为你的小秘书，来试试我的新功能吧！回复案例：“提醒 我 18:30 下班回家”，创建你的专属提醒，记得关键词之间使用空格分隔开哦');
+        await contact.say(`你好，${constant.robotName}很高兴成为你的小秘书，来试试我的新功能吧！回复案例：“提醒 我 18:30 下班回家”，创建你的专属提醒，记得关键词之间使用空格分隔开哦`);
         return;
       }
       if (text && text.indexOf('联系作者')> -1) {
@@ -344,7 +346,7 @@ module.exports = (robot) => {
       await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群每日早8点天气预报以及每日说，有什么问题可以在群里提出来哦<br>如果无聊，请@我和我聊天吧`);
     }
     if (topic === constant.orderingRoomName) {
-      await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群为雅枫餐厅订餐群，波波的订餐服务时间为工作日早上10:30-11:30，其他时间段请人工预订哦<br>可回复“@波波 菜单”查看菜单详情`)
+      await room.say(`欢迎新同学【${nameList}】加入${topic}<br>本群为雅枫餐厅订餐群，${constant.robotName}的订餐服务时间为工作日早上10:30-11:30，其他时间段请人工预订哦<br>可回复“@${constant.robotName} 菜单”查看菜单详情`)
     }
   }
 
@@ -359,7 +361,7 @@ module.exports = (robot) => {
       await roomInvitation.accept();
       const room = await robot.Room.find({ topic });
       await delay(2000);
-      room.say('大家好，我是微信机器人-波波，大家只需要@我就可以和我聊天啦');
+      room.say(`大家好，我是微信机器人-${constant.robotName}，大家只需要@我就可以和我聊天啦`);
     } catch (e) {
       console.error(e);
     }

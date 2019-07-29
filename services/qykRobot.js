@@ -9,7 +9,7 @@ qykRobotReply = async (content) => {
     const doc = JSON.parse(res.text);
     if (doc.result === 0) {
       let result = '';
-      result = doc.content.replace(/菲菲/g, '波波').replace(/美女/g, '帅哥').replace(/美人/g, '帅哥').replace(/梅州/g, '深圳').replace(/{br}/g, '<br>').replace(/{face:[0-9]+}/g, '');
+      result = doc.content.replace(/菲菲/g, constant.robotName).replace(/美女/g, '帅哥').replace(/美人/g, '帅哥').replace(/梅州/g, '深圳').replace(/{br}/g, '<br>').replace(/{face:[0-9]+}/g, '');
       return result;
     } else {
       return '我好像迷失在无边的网络中了，暂时无法回答你的问题';
