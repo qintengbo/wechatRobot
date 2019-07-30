@@ -3,7 +3,7 @@ const Assistant = require('../../models/assistant');
 module.exports = router => {
   // 获取定时任务列表
   router.get('/getScheduleList', async (ctx, next) => {
-    find = (data) => {
+    const find = data => {
       return new Promise(resovle => {
         Assistant.find(data, (err, doc) => {
           if (err) {
@@ -21,8 +21,8 @@ module.exports = router => {
       });
     }
 
-    const params = { isExpired: false };
-    let res = await find(params);
+    const { query } = ctx;
+    let res = await find(query);
     ctx.response.status = 200;
     ctx.body = res;
     next();

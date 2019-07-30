@@ -3,7 +3,7 @@ const Assistant = require('../../models/assistant');
 module.exports = router => {
   // 添加定时任务
   router.post('/addSchedule', async (ctx, next) => {
-    insert = (data) => {
+    const insert = (data) => {
       return new Promise(resolve => {
         Assistant.create(data, (err, doc) => {
           if (err) {

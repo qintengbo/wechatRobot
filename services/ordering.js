@@ -127,7 +127,7 @@ cancelOrdering = async (room, contact, keywordArr) => {
   const tip4 = '取消失败<br>网络开小差啦，麻烦重新取消订餐哦';
   const tip5 = `取消失败<br>未能查询到该序号对应的订餐信息，请核对后重新回复“@${constant.robotName} 取消 序号”`;
   // 删除订单
-  cancel = id => {
+  const cancel = id => {
     request.post(`${constant.host}/deleteOrdering`)
     .set('Content-Type', 'application/x-www-form-urlencoded')
     .send({ _id: id })

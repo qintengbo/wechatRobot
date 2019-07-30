@@ -3,7 +3,7 @@ const Assistant = require('../../models/assistant');
 module.exports = router => {
   // 更新定时任务状态
   router.post('/updateSchedule', async (ctx, next) => {
-    update = (data) => {
+    const update = data => {
       return new Promise(resolve => {
         Assistant.updateOne(data, { isExpired: true }, (err, doc) => {
           if (err) {

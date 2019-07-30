@@ -32,27 +32,27 @@ module.exports = (robot) => {
     console.log(`${name} => 微信登录成功`);
 
     // 获取每日万年历信息
-    // schedule.scheduleJob(constant.holidayDate, async () => {
-    //   const date = utils.getToday().replace(/-/g, '');
-    //   dateData = await getHoliday(date);
-    //   console.log('当日万年历信息获取成功');
-    // });
-    const date = utils.getToday().replace(/-/g, '');
-    dateData = await getHoliday(date);
-    console.log('当日万年历信息获取成功');
-
+    schedule.scheduleJob(constant.holidayDate, async () => {
+      const date = utils.getToday().replace(/-/g, '');
+      dateData = await getHoliday(date);
+      console.log('当日万年历信息获取成功');
+    });
+    
     // 获取定时任务列表
-    request.get(`${constant.host}/getScheduleList`).then(res => {
+    request.get(`${constant.host}/getScheduleList`).query({ isExpired: false }).then(res => {
       let text = JSON.parse(res.text);
       const { code, msg, data } = text;
       if (code === 0) {
         let scheduleList = data;
         // 初始化定时任务列表
         for (item of scheduleList) {
-          let time = item.isLoop ? item.time : new Date(item.time);
+          let time = item.isLoop ? utils.convertTime(item.time) : new Date(item.time);
           schedule.scheduleJob(time, async () => {
-            let contact = await robot.Contact.find({ name: item.subscriber });
-            await contact.say(item.content);
+            const contact = await robot.Contact.find({ name: item.subscriber });
+            const str1 = `亲爱的${item.subscriber}，现在时间是${item.time}，温馨提醒：${item.content.replace('我', '你')}`;
+            const str2 = `亲爱的${item.subscriber}，${item.announcer}委托我提醒你，${item.content.replace('我', '你')}`;
+            const word = item.announcer === item.subscriber ? str1 : str2;
+            await contact.say(word);
             // 任务执行完毕之后更新任务状态为过期
             if (!item.isLoop) {
               request.post(`${constant.host}/updateSchedule`)
@@ -70,12 +70,10 @@ module.exports = (robot) => {
     });
 
     // 初始化微信每日说
-    // schedule.scheduleJob(constant.sendDate, async () => {
-    //   console.log('微信每日说启动成功');
-    //   initDay(robot, dateData);
-    // });
-    console.log('微信每日说启动成功');
-    initDay(robot, dateData);
+    schedule.scheduleJob(constant.sendDate, async () => {
+      console.log('微信每日说启动成功');
+      initDay(robot, dateData);
+    });
 
     // 初始化订餐服务
     schedule.scheduleJob(constant.orderingStartDate, async () => {

@@ -1,20 +1,20 @@
-const Ordering = require('../../models/ordering');
+const Assistant = require('../../models/assistant');
 
 module.exports = router => {
-  // 删除订餐
-  router.post('/deleteOrdering', async (ctx, next) => {
+  // 删除定时任务
+  router.post('/deleteSchedule', async (ctx, next) => {
     const cancel = data => {
       return new Promise(resolve => {
-        Ordering.deleteOne(data, err => {
+        Assistant.deleteOne(data, err => {
           if (err) {
             return resolve({
               code: -1,
-              msg: '删除订餐失败'
+              msg: '删除提醒失败'
             });
           }
           return resolve({
             code: 0,
-            msg: '删除订餐成功'
+            msg: '删除提醒成功'
           });
         });
       });
