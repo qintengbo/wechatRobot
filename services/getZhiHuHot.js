@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const constant = require('../config/constant');
 const config = require('../config/config');
 
-// 获取知乎热榜前十
+// 获取知乎热榜前五
 getZhiHuHot = async () => {
   try {
     let res = await request.get(constant.zhihuHotUrl).set({
