@@ -12,7 +12,7 @@ module.exports = {
   orderingCenterDate: '0 0 11 * * 1-5', // 订餐中途提醒时间
   orderingTipDate: '0 25 11 * * 1-5', // 订餐即将结束提醒时间
   orderingEndDate: '0 30 11 * * 1-5', // 工作日订餐结束时间
-  holidayDate: '0 0 0 * * *', // 获取每日万年历信息
+  holidayDate: '0 0 1 * * *', // 获取每日万年历信息
   mojiHost: 'https://tianqi.moji.com/weather/china/guangdong/', // 中国墨迹天气url
   zhihuHotUrl: 'https://www.zhihu.com/hot', // 知乎热榜url
   holidayUrl: 'https://www.mxnzp.com/api', // 万年历url
