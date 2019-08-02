@@ -3,7 +3,7 @@ const config = require('../config/config');
 const constant = require('../config/constant');
 
 // 青云客机器人
-qykRobotReply = async (content) => {
+qykRobotReply = async content => {
   try {
     let res = await request.get(constant.qykBotApi).query({ key: 'free', appid: 0, msg: content });
     const doc = JSON.parse(res.text);

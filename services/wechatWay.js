@@ -6,6 +6,7 @@ const { FileBox } = require('file-box');
 const constant = require('../config/constant');
 const txRobotReply = require('./txRobot');
 const qykRobotReply = require('./qykRobot');
+const tuRingRobotReply = require('./tuRingRobot');
 const initDay = require('./initDay');
 const settingTask = require('./settingTask');
 const getRubbishType = require('./getRubbishType');
@@ -240,6 +241,9 @@ module.exports = (robot) => {
           case 1:
             replyContent = `@${contact.name()} ` + await qykRobotReply(content);
             break;
+          case 2:
+            replyContent = `@${contact.name()} ` + await tuRingRobotReply(content);
+            break;
         }
         console.log('机器人回复：', replyContent);
         await delay(2000);
@@ -309,6 +313,9 @@ module.exports = (robot) => {
           break;
         case 1:
           replyContent = await qykRobotReply(text);
+          break;
+        case 2:
+          replyContent = await tuRingRobotReply(text);
           break;
       }
       console.log('机器人回复：', replyContent);

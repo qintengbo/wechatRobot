@@ -3,12 +3,11 @@ const config = require('../config/config');
 const constant = require('../config/constant');
 
 // 天行机器人
-txRobotReply = async (content) => {
+txRobotReply = async content => {
   try {
     let res = await request.get(constant.txBotApi).query({ key: config.apiKey, question: content });
     const doc = JSON.parse(res.text);
     if (doc.code === 200) {
-      console.log('机器人返回内容：', doc);
       let result = '';
       switch (doc.datatype) {
         case 'text':
