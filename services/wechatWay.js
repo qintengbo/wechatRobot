@@ -33,9 +33,10 @@ module.exports = (robot) => {
     console.log(`${name} => 微信登录成功`);
 
     // 获取每日万年历信息
+    const date = utils.getToday().replace(/-/g, '');
+    dateData = await getHoliday(date);
+    // 定时获取
     schedule.scheduleJob(constant.holidayDate, async () => {
-      const date = utils.getToday().replace(/-/g, '');
-      dateData = await getHoliday(date);
       console.log('当日万年历信息获取成功');
     });
     
