@@ -38,6 +38,8 @@ module.exports = (robot) => {
     // 定时获取
     schedule.scheduleJob(constant.holidayDate, async () => {
       console.log('当日万年历信息获取成功');
+      const date = utils.getToday().replace(/-/g, '');
+      dateData = await getHoliday(date);
     });
     
     // 获取定时任务列表
